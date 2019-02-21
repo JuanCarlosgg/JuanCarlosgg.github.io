@@ -9,11 +9,17 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
 </div><script>
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Init
-	//////////////////////////////////////////////////////////////////////////////////
-	// init renderer
-	var renderer	= new THREE.WebGLRenderer({
+
+var scene, camera, renderer, onRenderFcts;
+var ArToolkitSource, arToolkitContext, markerControls;
+var geometry, material, mesh;
+var lastTimeMsec, deltaMsec;
+
+init();
+render();
+
+function init () {
+	renderer	= new THREE.WebGLRenderer({
 		antialias: true,
 		alpha: true
 	});
@@ -24,20 +30,19 @@
 	renderer.domElement.style.left = '0px'
 	document.body.appendChild( renderer.domElement );
 	// array of functions for the rendering loop
-	var onRenderFcts= [];
+	onRenderFcts= [];
 	// init scene and camera
-	var scene	= new THREE.Scene();
-		
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Initialize a basic camera
-	//////////////////////////////////////////////////////////////////////////////////
-	// Create a camera
-	var camera = new THREE.Camera();
+	scene	= new THREE.Scene();
+	
+	
+	
+	camera = new THREE.Camera();
 	scene.add(camera);
+	
 	////////////////////////////////////////////////////////////////////////////////
 	//          handle arToolkitSource
 	////////////////////////////////////////////////////////////////////////////////
-	var arToolkitSource = new THREEx.ArToolkitSource({
+	arToolkitSource = new THREEx.ArToolkitSource({
 		// to read from the webcam 
 		sourceType : 'webcam',
 		
@@ -68,7 +73,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	
 	// create atToolkitContext
-	var arToolkitContext = new THREEx.ArToolkitContext({
+	arToolkitContext = new THREEx.ArToolkitContext({
 		cameraParametersUrl:  'libs/data/data/camera_para.dat',
 		detectionMode: 'mono',
 	})
@@ -91,7 +96,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	
 	// init controls for camera
-	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+	markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
 		type : 'pattern',
 		patternUrl : 'libs/data/data/patt.hiro',
 		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
@@ -104,13 +109,13 @@
 	//		add an object in the scene
 	//////////////////////////////////////////////////////////////////////////////////
 	// add a torus knot	
-	var geometry	= new THREE.CubeGeometry(1,1,1);
-	var material	= new THREE.MeshNormalMaterial({
+	geometry	= new THREE.CubeGeometry(1,1,1);
+	material	= new THREE.MeshNormalMaterial({
 		transparent : true,
 		opacity: 0.5,
 		side: THREE.DoubleSide
 	}); 
-	var mesh	= new THREE.Mesh( geometry, material );
+	mesh	= new THREE.Mesh( geometry, material );
 	mesh.position.y	= geometry.parameters.height/2
 	scene.add( mesh );
 	
@@ -120,9 +125,15 @@
 	//mesh.position.y	= 0.5
 	//scene.add( mesh );
 	
+	
 	onRenderFcts.push(function(delta){
 		mesh.rotation.x += Math.PI*delta
 	})
+
+}
+
+
+function render() {
 	//////////////////////////////////////////////////////////////////////////////////
 	//		render the whole thing on the page
 	//////////////////////////////////////////////////////////////////////////////////
@@ -131,17 +142,18 @@
 		renderer.render( scene, camera );
 	})
 	// run the rendering loop
-	var lastTimeMsec= null
+	lastTimeMsec= null
 	requestAnimationFrame(function animate(nowMsec){
 		// keep looping
 		requestAnimationFrame( animate );
 		// measure time
 		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+		deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
 		lastTimeMsec	= nowMsec
 		// call each update function
 		onRenderFcts.forEach(function(onRenderFct){
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
 	})
+}
 </script></body>
