@@ -97,19 +97,9 @@ function init () {
 	})
 	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
 	scene.visible = false
-	//////////////////////////////////////////////////////////////////////////////////
-	//		add an object in the scene
-	//////////////////////////////////////////////////////////////////////////////////
-	// add a torus knot	
-	geometry	= new THREE.CubeGeometry(1,1,1);
-	material	= new THREE.MeshNormalMaterial({
-		transparent : true,
-		opacity: 0.5,
-		side: THREE.DoubleSide
-	}); 
-	mesh	= new THREE.Mesh( geometry, material );
-	mesh.position.y	= geometry.parameters.height/2
-	scene.add( mesh );
+
+
+
 	
 
 	//var material	= new THREE.MeshNormalMaterial(); 
@@ -135,7 +125,7 @@ function init () {
 	// called when loading has errors
 	function ( error ) {
 
-		console.log( 'An error happened' );
+		console.warn( 'An error happened' );
 
 	}
 );
