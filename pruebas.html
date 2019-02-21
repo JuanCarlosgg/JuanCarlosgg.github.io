@@ -120,7 +120,8 @@ function init () {
 	'models/eb_house_plant_01.obj',
 	// called when resource is loaded
 	function ( object ) {
-        mesh = group.children[0];
+        
+        mesh = object.children[0];
 		mesh.material.side = THREE.DoubleSide;
 		mesh.position.y = 0.25;
 		mesh.scale.set(0.25,0.25,0.25);
