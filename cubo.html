@@ -108,10 +108,37 @@ function initialize()
 
 	
 }
+var b = true;
+
 function update()
 {
-	if (markerRoot1.visible == true)
-		mesh1.rotation.y += 0.1;
+	if (markerRoot1.visible == true){
+
+		
+
+		if (b == false) {
+			mesh1.position.y -= 0.01;
+			mesh1.rotation.x -= 0.05;
+
+			console.log("baja" + mesh1.position.y);		
+			
+			if (mesh1.position.y < 0.5){ 
+				b = true;
+				console.log("Termina de bajar");
+			}
+		}	
+		else if (b == true) {
+			mesh1.position.y += 0.01;
+			mesh1.rotation.x += 0.05;
+
+			console.log("sube" + mesh1.position.y);
+			if (mesh1.position.y > 2.0) {
+				b = false;
+				console.log("Termina de subir");
+			}
+		}		
+	}
+
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
 		arToolkitContext.update( arToolkitSource.domElement );
