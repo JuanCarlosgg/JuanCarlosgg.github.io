@@ -40,23 +40,27 @@ function init () {
 	document.body.appendChild( renderer.domElement );
 	// array of functions for the rendering loop
 	onRenderFcts= [];
+
 	// init scene and camera
 	scene	= new THREE.Scene();
-	
-	
-	
 	camera = new THREE.Camera();
 	scene.add(camera);
 
+
 	arToolkitSource = new THREEx.ArToolkitSource({
-		sourceType : 'webcam',
-		// to read from an image
-		// sourceType : 'image',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',		
-		// to read from a video
-		// sourceType : 'video',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',		
+		sourceType : 'webcam',	
 	})
+
+	function onResize()
+	{
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if ( arToolkitContext.arController !== null )
+		{
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+
 	arToolkitSource.init(function onReady(){
 		onResize()
 	})
@@ -65,14 +69,7 @@ function init () {
 	window.addEventListener('resize', function(){
 		onResize()
 	})
-	function onResize(){
-		arToolkitSource.onResize()	
-		arToolkitSource.copySizeTo(renderer.domElement)	
-		if( arToolkitContext.arController !== null ){
-			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
-		}	
-	}
-
+	
 
 		
 	// create atToolkitContext
@@ -85,6 +82,10 @@ function init () {
 	arToolkitContext.init(function onCompleted(){
 		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
 	})
+
+
+
+	/*
 	// update artoolkit on every frame
 	onRenderFcts.push(function(){
 		if( arToolkitSource.ready === false )	return
@@ -93,21 +94,13 @@ function init () {
 		// update scene.visible if the marker is seen
 		scene.visible = camera.visible
 	})
-		
-	////////////////////////////////////////////////////////////////////////////////
-	//          Create a ArMarkerControls
-	////////////////////////////////////////////////////////////////////////////////
-	
-	// init controls for camera
+		*/
+
 	markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
 		type : 'pattern',
 		patternUrl : 'libs/data/data/patt.hiro'
 	})
-	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
-	//////////////////////////////////////////////////////////////////////////////////
-	//		add an object in the scene
-	//////////////////////////////////////////////////////////////////////////////////
-	// add a torus knot	
+
 	geometry	= new THREE.CubeGeometry(1,1,1);
 	material	= new THREE.MeshNormalMaterial({
 		transparent : true,
@@ -115,15 +108,8 @@ function init () {
 		side: THREE.DoubleSide
 	}); 
 	mesh	= new THREE.Mesh( geometry, material );
-	mesh.position.y	= geometry.parameters.height/2
+	mesh.position.y	= 0.5;
 	scene.add( mesh );
-	
-
-	//var material	= new THREE.MeshNormalMaterial(); 
-	//var mesh	= new THREE.Mesh( geometry, material );
-	//mesh.position.y	= 0.5
-	//scene.add( mesh );
-	
 	
 	onRenderFcts.push(function(delta){
 		mesh.rotation.x += Math.PI*delta
@@ -132,28 +118,20 @@ function init () {
 }
 
 
+
+function render()
+{
+	renderer.render( scene, camera );
+}
+
+
 function render() {
-	//////////////////////////////////////////////////////////////////////////////////
-	//		render the whole thing on the page
-	//////////////////////////////////////////////////////////////////////////////////
-	// render the scene
-	onRenderFcts.push(function(){
-		renderer.render( scene, camera );
-	})
-	// run the rendering loop
-	lastTimeMsec= null
-	requestAnimationFrame(function animate(nowMsec){
-		// keep looping
-	
-		requestAnimationFrame( animate );
-		// measure time
-		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-		deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-		lastTimeMsec	= nowMsec
-		// call each update function
-		onRenderFcts.forEach(function(onRenderFct){
-			onRenderFct(deltaMsec/1000, nowMsec/1000)
-		})
-	})
+
+
+	requestAnimationFrame(render);
+	if ( arToolkitSource.ready !== false )
+		arToolkitContext.update( arToolkitSource.domElement );
+
+	renderer.render( scene, camera );
 }
 </script></body>
