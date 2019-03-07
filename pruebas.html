@@ -121,23 +121,25 @@ function init () {
 	// called when resource is loaded
 	function ( object ) {
         
-        mesh = object.children[0];
-		mesh.material.side = THREE.DoubleSide;
-		mesh.position.y = 10;
-		mesh.scale.set(0.2,0.2,0.2);
-		scene.add( mesh );
+        mesh = object;
+		
+		
+		//mesh.material.side = THREE.DoubleSide;
+		mesh.position.y = -10;
+		//mesh.scale.set(0.2,0.2,0.2);
+		//scene.add( mesh );
 
 	},
 	// called when loading is in progresses
 	function ( xhr ) {
 
-		console.warn( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		//console.warn( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
 	},
 	// called when loading has errors
 	function ( error ) {
 
-		console.warn( 'An error happened' );
+		//console.warn( 'An error happened' );
 
 	}
 );
@@ -147,10 +149,7 @@ function init () {
 
 
 function render() {
-	//////////////////////////////////////////////////////////////////////////////////
-	//		render the whole thing on the page
-	//////////////////////////////////////////////////////////////////////////////////
-	// render the scene
+	
 	onRenderFcts.push(function(){
 		renderer.render( scene, camera );
 	})
