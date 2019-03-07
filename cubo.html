@@ -104,9 +104,14 @@ function initialize()
 	mesh1.position.y = 0.5;
 	
 	markerRoot1.add( mesh1 );
+
+
+	
 }
 function update()
 {
+	if (markerRoot1.visible == true)
+		mesh1.rotation.y += 0.1;
 	// update artoolkit on every frame
 	if ( arToolkitSource.ready !== false )
 		arToolkitContext.update( arToolkitSource.domElement );
