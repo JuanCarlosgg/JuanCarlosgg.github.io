@@ -145,6 +145,7 @@ function render() {
 	lastTimeMsec= null
 	requestAnimationFrame(function animate(nowMsec){
 		// keep looping
+		console.log("AAAA");
 		requestAnimationFrame( animate );
 		// measure time
 		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
