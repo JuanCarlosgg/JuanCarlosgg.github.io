@@ -104,7 +104,6 @@ function init () {
 		patternUrl : 'libs/data/data/patt.hiro'
 	})
 	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
-	scene.visible = false
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add an object in the scene
 	//////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +144,7 @@ function render() {
 	lastTimeMsec= null
 	requestAnimationFrame(function animate(nowMsec){
 		// keep looping
-	//	console.log("AAAA");
+	
 		requestAnimationFrame( animate );
 		// measure time
 		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
@@ -153,7 +152,6 @@ function render() {
 		lastTimeMsec	= nowMsec
 		// call each update function
 		onRenderFcts.forEach(function(onRenderFct){
-			console.log("actualización");
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
 	})
