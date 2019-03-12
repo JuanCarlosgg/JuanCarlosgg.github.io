@@ -89,17 +89,12 @@ function initialize()
 	////////////////////////////////////////////////////////////
 	// setup markerRoots
 	////////////////////////////////////////////////////////////
-	// build markerControls
-	markerRoot1 = new THREE.Group();
-	scene.add(markerRoot1);
-	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
-		type: 'pattern', patternUrl: "libs/data/data/patt.hiro",
-	});
+
 
 	markerRoot2 = new THREE.Group();
 	scene.add(markerRoot2);
 	let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
-		type: 'pattern', patternUrl: "libs/data/data/patt.1.hiro",
+		type: 'pattern', patternUrl: "libs/data/data/patt.kanji",
 	});
 
 
@@ -130,6 +125,13 @@ function initialize()
 		markerRoot2.add( model );
 
     });
+
+	// build markerControls
+	markerRoot1 = new THREE.Group();
+	scene.add(markerRoot1);
+	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+		type: 'pattern', patternUrl: "libs/data/data/patt.hiro",
+	});
 
 	loader = new THREE.OBJLoader();
     loader.load(
