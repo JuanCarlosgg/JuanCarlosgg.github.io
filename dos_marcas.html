@@ -2,19 +2,19 @@
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
 <!--  three.js library -->
-<script src='https://juancarlosgg.github.io/libs/three.js/build/three.js'></script>
+<script src='libs/three.js/build/three.js'></script>
 <!--  jsartookit -->
-<script src='https://juancarlosgg.github.io/libs/jsartoolkit5/build/artoolkit.min.js'></script>
-<script src='https://juancarlosgg.github.io/libs/jsartoolkit5/js/artoolkit.api.js'></script>
+<script src='libs/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='libs/jsartoolkit5/js/artoolkit.api.js'></script>
 <!--  OBJLoader -->
-<script src='https://juancarlosgg.github.io/libs/js/loaders/OBJLoader.js'></script>
-<script src='https://juancarlosgg.github.io/libs/js/loaders/TGALoader.js'></script>
+<script src='libs/js/loaders/OBJLoader.js'></script>
+<script src='libs/js/loaders/TGALoader.js'></script>
 
 <!--  threex -->
-<script src="https://juancarlosgg.github.io/libs/threex/threex-artoolkitsource.js"></script>
-<script src="https://juancarlosgg.github.io/libs/threex/threex-artoolkitcontext.js"></script>
-<script src="https://juancarlosgg.github.io/libs/threex/threex-arbasecontrols.js"></script>
-<script src="https://juancarlosgg.github.io/libs/threex/threex-armarkercontrols.js"></script>
+<script src="libs/threex/threex-artoolkitsource.js"></script>
+<script src="libs/threex/threex-artoolkitcontext.js"></script>
+<script src="libs/threex/threex-arbasecontrols.js"></script>
+<script src="libs/threex/threex-armarkercontrols.js"></script>
 
 
 
@@ -94,14 +94,42 @@ function initialize()
 	scene.add(markerRoot1);
 	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
 		type: 'pattern', patternUrl: "libs/data/data/patt.hiro",
-	})
+	});
 
 	markerRoot2 = new THREE.Group();
 	scene.add(markerRoot2);
-	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
-		type: 'pattern', patternUrl: "libs/data/data/patt.hiro",
-	})
+	let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
+		type: 'pattern', patternUrl: "libs/data/data/patt.1.hiro",
+	});
 
+
+	loader2 = new THREE.OBJLoader();
+    loader2.load(
+	// resource URL
+	'models/eb_house_plant_01.obj',
+	// called when resource is loaded
+	function ( model ) {
+        
+        window.model = model;
+        model.position.y = 0.5;
+        
+       
+        var material2 =  model.children[0].material
+	//	material.shading = THREE.SmoothShading
+	//	material.color.set('#30D430')
+		material2.needsUpdate = true
+    
+        var loaderTexture2 = new THREE.TGALoader();
+        var texture2 = loaderTexture2.load("models/eb_house_plant_01_c.tga");
+        var material2 = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture2});
+        model.children[0].material = material2;
+
+		model.scale.set(1,1,1).multiplyScalar(0.1)
+
+
+		markerRoot2.add( model );
+
+    });
 
 	loader = new THREE.OBJLoader();
     loader.load(
@@ -126,12 +154,9 @@ function initialize()
 
 		model.scale.set(1,1,1).multiplyScalar(0.1)
 
-        markerRoot1.add( model );
-		markerRoot2.add( model );
+		markerRoot1.add( model );
 
     });
-
-
 	
 }
 var b = true;
