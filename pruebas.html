@@ -1,39 +1,42 @@
 
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
-
 <!--  three.js library -->
-<script src='libs/three.js/build/three.js'></script>
+<script src='https://juancarlosgg.github.io//libs/three.js/build/three.js'></script>
 <!--  jsartookit -->
-<script src='libs/jsartoolkit5/build/artoolkit.min.js'></script>
-<script src='libs/jsartoolkit5/js/artoolkit.api.js'></script>
+<script src='https://juancarlosgg.github.io/libs/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='https://juancarlosgg.github.io/libs/jsartoolkit5/js/artoolkit.api.js'></script>
 <!--  OBJLoader -->
-<script src='libs/js/loaders/OBJLoader.js'></script>
+<script src='https://juancarlosgg.github.io/libs/js/loaders/OBJLoader.js'></script>
+<script src='https://juancarlosgg.github.io/libs/js/loaders/TGALoader.js'></script>
+
 <!--  threex -->
-<script src="libs/threex/threex-artoolkitsource.js"></script>
-<script src="libs/threex/threex-artoolkitcontext.js"></script>
-<script src="libs/threex/threex-arbasecontrols.js"></script>
-<script src="libs/threex/threex-armarkercontrols.js"></script>
+<script src="https://juancarlosgg.github.io/libs/threex/threex-artoolkitsource.js"></script>
+<script src="https://juancarlosgg.github.io/libs/threex/threex-artoolkitcontext.js"></script>
+<script src="https://juancarlosgg.github.io/libs/threex/threex-arbasecontrols.js"></script>
+<script src="https://juancarlosgg.github.io/libs/threex/threex-armarkercontrols.js"></script>
 
 
-<!--
--->
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
 </div><script>
 
-var scene, camera, renderer, onRenderFcts;
-var ArToolkitSource, arToolkitContext, markerControls;
-var geometry, material, mesh;
-var lastTimeMsec, deltaMsec;
-var loader;
-
-init();
-render();
-
-function init () {
-	renderer	= new THREE.WebGLRenderer({
-		antialias: true,
+var scene, camera, renderer, clock, deltaTime, totalTime;
+var arToolkitSource, arToolkitContext;
+var markerRoot1, markerRoot2;
+var mesh1;
+initialize();
+animate();
+function initialize()
+{
+	scene = new THREE.Scene();
+	let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+	scene.add( ambientLight );
+				
+	camera = new THREE.Camera();
+	scene.add(camera);
+	renderer = new THREE.WebGLRenderer({
+		antialias : true,
 		alpha: true
 	});
 	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
@@ -42,130 +45,109 @@ function init () {
 	renderer.domElement.style.top = '0px'
 	renderer.domElement.style.left = '0px'
 	document.body.appendChild( renderer.domElement );
-	// array of functions for the rendering loop
-	onRenderFcts= [];
-	// init scene and camera
-	scene	= new THREE.Scene();
+	clock = new THREE.Clock();
+	deltaTime = 0;
+	totalTime = 0;
 	
-	
-	
-	camera = new THREE.Camera();
-	scene.add(camera);
-
+	////////////////////////////////////////////////////////////
+	// setup arToolkitSource
+	////////////////////////////////////////////////////////////
 	arToolkitSource = new THREEx.ArToolkitSource({
 		sourceType : 'webcam',
-		// to read from an image
-		// sourceType : 'image',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',		
-		// to read from a video
-		// sourceType : 'video',
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',		
-	})
-	arToolkitSource.init(function onReady(){
-		onResize()
-	})
-	
-	// handle resize
-	window.addEventListener('resize', function(){
-		onResize()
-	})
-	function onResize(){
+	});
+	function onResize()
+	{
 		arToolkitSource.onResize()	
 		arToolkitSource.copySizeTo(renderer.domElement)	
-		if( arToolkitContext.arController !== null ){
+		if ( arToolkitContext.arController !== null )
+		{
 			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
 		}	
 	}
-
-
-		
+	arToolkitSource.init(function onReady(){
+		onResize()
+	});
+	
+	// handle resize event
+	window.addEventListener('resize', function(){
+		onResize()
+	});
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitContext
+	////////////////////////////////////////////////////////////	
 	// create atToolkitContext
 	arToolkitContext = new THREEx.ArToolkitContext({
-		//Calibración de la cámara
-		cameraParametersUrl:  'libs/data/data/camera_para.dat',
-		detectionMode: 'mono',
-	})
-
-	arToolkitContext.init(function onCompleted(){
-		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-	})
-	// update artoolkit on every frame
-	onRenderFcts.push(function(){
-		if( arToolkitSource.ready === false )	return
-		arToolkitContext.update( arToolkitSource.domElement )
-		
-		// update scene.visible if the marker is seen
-		scene.visible = camera.visible
-	})
-		
-	////////////////////////////////////////////////////////////////////////////////
-	//          Create a ArMarkerControls
-	////////////////////////////////////////////////////////////////////////////////
+		cameraParametersUrl: 'libs/data/data/camera_para.dat',
+		detectionMode: 'mono'
+	});
 	
-	// init controls for camera
-	markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-		type : 'pattern',
-		patternUrl : 'libs/data/data/patt.hiro'
+	// copy projection matrix to camera when initialization complete
+	arToolkitContext.init( function onCompleted(){
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	});
+	////////////////////////////////////////////////////////////
+	// setup markerRoots
+	////////////////////////////////////////////////////////////
+	// build markerControls
+	markerRoot1 = new THREE.Group();
+	scene.add(markerRoot1);
+	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+		type: 'pattern', patternUrl: "libs/data/data/patt.hiro",
 	})
-	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
-	scene.visible = false
 
-	//var material	= new THREE.MeshNormalMaterial(); 
-	//var mesh	= new THREE.Mesh( geometry, material );
-	//mesh.position.y	= 0.5
-	//scene.add( mesh );
+
 	loader = new THREE.OBJLoader();
     loader.load(
 	// resource URL
 	'models/eb_house_plant_01.obj',
 	// called when resource is loaded
-	function ( object ) {
+	function ( model ) {
         
-        mesh = object;
-		
-		
-		//mesh.material.side = THREE.DoubleSide;
-		mesh.position.y = -10;
-		//mesh.scale.set(0.2,0.2,0.2);
-		//scene.add( mesh );
+        window.model = model;
+        model.position.y = 0.5;
+        
+       
+        var material =  model.children[0].material
+	//	material.shading = THREE.SmoothShading
+	//	material.color.set('#30D430')
+		material.needsUpdate = true
+    
+        var loaderTexture = new THREE.TGALoader();
+        var texture = loaderTexture.load("models/eb_house_plant_01_c.tga");
+        var material = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture});
+        model.children[0].material = material;
 
-	},
-	// called when loading is in progresses
-	function ( xhr ) {
+		model.scale.set(1,1,1).multiplyScalar(0.1)
 
-		//console.warn( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        markerRoot1.add( model );
+    });
 
-	},
-	// called when loading has errors
-	function ( error ) {
 
-		//console.warn( 'An error happened' );
-
-	}
-);
 	
-
 }
+var b = true;
 
-
-function render() {
-	
-	onRenderFcts.push(function(){
-		renderer.render( scene, camera );
-	})
-	// run the rendering loop
-	lastTimeMsec= null
-	requestAnimationFrame(function animate(nowMsec){
-		// keep looping
-		requestAnimationFrame( animate );
-		// measure time
-		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-		deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-		lastTimeMsec	= nowMsec
-		// call each update function
-		onRenderFcts.forEach(function(onRenderFct){
-			onRenderFct(deltaMsec/1000, nowMsec/1000)
-		})
-	})
+function update()
+{
+	/*
+	EDITAR AQUÍ
+	*/
+	// update artoolkit on every frame
+	if ( arToolkitSource.ready !== false )
+		arToolkitContext.update( arToolkitSource.domElement );
 }
+function render()
+{
+	renderer.render( scene, camera );
+}
+function animate()
+{
+	requestAnimationFrame(animate);
+	deltaTime = clock.getDelta();
+	totalTime += deltaTime;
+	update();
+	render();
+}
+</script>
 </script></body>
