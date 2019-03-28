@@ -1,0 +1,199 @@
+
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<!--  three.js library -->
+<script src='libs/three.js/build/three.js'></script>
+<!--  jsartookit -->
+<script src='libs/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='libs/jsartoolkit5/js/artoolkit.api.js'></script>
+<!--  OBJLoader -->
+<script src='libs/js/loaders/OBJLoader.js'></script>
+<script src='libs/js/loaders/TGALoader.js'></script>
+
+<!--  threex -->
+<script src="libs/threex/threex-artoolkitsource.js"></script>
+<script src="libs/threex/threex-artoolkitcontext.js"></script>
+<script src="libs/threex/threex-arbasecontrols.js"></script>
+<script src="libs/threex/threex-armarkercontrols.js"></script>
+
+
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+</div><script>
+
+var scene, camera, renderer, clock, deltaTime, totalTime;
+var arToolkitSource, arToolkitContext;
+var markerRoot1, markerRoot2, markerRoot3;
+var mesh1;
+var escala ;
+initialize();
+animate();
+function initialize()
+{
+	scene = new THREE.Scene();
+	let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+	scene.add( ambientLight );
+				
+	camera = new THREE.Camera();
+	scene.add(camera);
+	renderer = new THREE.WebGLRenderer({
+		antialias : true,
+		alpha: true
+	});
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	renderer.setSize( 640, 480 );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+	clock = new THREE.Clock();
+	deltaTime = 0;
+	totalTime = 0;
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitSource
+	////////////////////////////////////////////////////////////
+	arToolkitSource = new THREEx.ArToolkitSource({
+		sourceType : 'webcam',
+	});
+	function onResize()
+	{
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if ( arToolkitContext.arController !== null )
+		{
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+	arToolkitSource.init(function onReady(){
+		onResize()
+	});
+	
+	// handle resize event
+	window.addEventListener('resize', function(){
+		onResize()
+	});
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitContext
+	////////////////////////////////////////////////////////////	
+	// create atToolkitContext
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: 'libs/data/data/camera_para.dat',
+		detectionMode: 'mono'
+	});
+	
+	// copy projection matrix to camera when initialization complete
+	arToolkitContext.init( function onCompleted(){
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	});
+	////////////////////////////////////////////////////////////
+	// setup markerRoots
+	////////////////////////////////////////////////////////////
+
+
+	markerRoot1 = new THREE.Group();
+	scene.add(markerRoot1);
+	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+		type: 'pattern', patternUrl: "libs/data/data/patt.hiro",
+	});
+
+
+	loader = new THREE.OBJLoader();
+    loader.load(
+	// resource URL
+	'models/eb_house_plant_01.obj',
+	// called when resource is loaded
+	function ( model ) {
+        
+       
+        window.model = model;
+        model.position.y = 0.5;
+        
+       
+        var material =  model.children[0].material
+		material.needsUpdate = true
+    
+        var loaderTexture = new THREE.TGALoader();
+        var texture = loaderTexture.load("https://juancarlosgg.github.io/models/eb_house_plant_01_c.tga");
+        var material = new THREE.MeshBasicMaterial({color: 0xffffff, map: texture});
+       // model.children[0].material = material;
+        mesh1 = new THREE.Mesh( model.children[0].geometry, material);
+		mesh1.scale.set(0.5,0.5 ,0.5).multiplyScalar(0.1)
+       
+        escala = mesh1.scale.x;
+        
+        markerRoot1.add( mesh1 );
+
+    });
+
+	// build markerControls
+	markerRoot2 = new THREE.Group();
+	scene.add(markerRoot2);
+	let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
+		type: 'pattern', patternUrl: "libs/data/data/mas.patt",
+	});
+
+    markerRoot3 = new THREE.Group();
+	scene.add(markerRoot3);
+	let markerControls3 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot3, {
+		type: 'pattern', patternUrl: "libs/data/data/menos.patt",
+	});
+	
+}
+var b = true;
+
+function update()
+{
+    if (markerRoot1.visible == true){
+        if (markerRoot2.visible == true){
+            if (mesh1.scale.x < 0.1) {
+                mesh1.scale.x += 0.0002;
+                mesh1.scale.y += 0.0002;
+                mesh1.scale.z += 0.0002;
+            }
+        } else {
+         /*
+            if (mesh1.scale.x > 0.05) {
+                mesh1.scale.x -= 0.0002;
+                mesh1.scale.y -= 0.0002;
+                mesh1.scale.z -= 0.0002;
+            }
+           */ 
+        }
+    }
+    if (markerRoot1.visible == true){
+        if (markerRoot3.visible == true){
+            if (mesh1.scale.x > 0.05) {
+                mesh1.scale.x -= 0.0002;
+                mesh1.scale.y -= 0.0002;
+                mesh1.scale.z -= 0.0002;
+            }
+        } else {
+         /*
+            if (mesh1.scale.x > 0.05) {
+                mesh1.scale.x -= 0.0002;
+                mesh1.scale.y -= 0.0002;
+                mesh1.scale.z -= 0.0002;
+            }
+           */ 
+        }
+    }
+	// update artoolkit on every frame
+	if ( arToolkitSource.ready !== false )
+		arToolkitContext.update( arToolkitSource.domElement );
+}
+function render()
+{
+	renderer.render( scene, camera );
+}
+function animate()
+{
+	requestAnimationFrame(animate);
+	deltaTime = clock.getDelta();
+	totalTime += deltaTime;
+	update();
+	render();
+}
+</script>
+</script></body>
