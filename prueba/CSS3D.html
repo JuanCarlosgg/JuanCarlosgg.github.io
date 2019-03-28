@@ -1,0 +1,121 @@
+<!doctype html><title>Minimal tQuery Page</title>
+<script src="TQuery.js"></script>
+<script src="CSS3DRenderer.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+   crossorigin=""></script>
+
+
+ <div id="map" style="width: 500px;height: 500px;"></div>
+
+<body style='background-color: #bbbbbb'><script>
+    
+  /*  var mapa	= document.createElement('div', "map")
+    mapa.style.height = '1000px';
+    mapa.style.width = '1000px';
+    */
+    function loadmapa () {
+
+
+        var map = L.map('map').fitWorld();
+
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox.streets',
+            accessToken: 'pk.eyJ1Ijoiam5jcmxzIiwiYSI6ImNqdHN5Y2o0cjBwMjk0ZG1tZ2h1MGZzYWkifQ.IEckT2kpIdfcQYOiwn9OCQ'
+        }).addTo(map);
+
+        map.locate({setView: true, maxZoom: 16});
+
+        function onLocationFound(e) {
+            var radius = e.accuracy / 2;
+
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+            L.circle(e.latlng, radius).addTo(map);
+            }
+
+        map.on('locationfound', onLocationFound);
+
+        function onLocationError(e) {
+            alert(e.message);
+        }
+
+        map.on('locationerror', onLocationError);
+
+
+        var mapa = document.getElementById( 'map' );
+
+
+    }
+	var world	= tQuery.createWorld().boilerplate().start();
+//	var object	= tQuery.createTorusKnot().addTo(world);
+
+
+	world.tRenderer().setClearColor( 'black', 0);
+
+//	world.removeCameraControls();
+	world.camera().translateZ(20)
+	
+	// your code goes here
+	tQuery.createPlane().addTo(world)
+		.scaleBy(16)
+		.setBasicMaterial()
+			// .wireframe(true)
+			// .wireframeLinewidth(3)
+			.opacity(0)
+			.blending(THREE.NoBlending)
+			.color('black')
+			.back()
+		
+	tQuery.createTorusKnot().addTo(world)
+		.position(-8,0,-4)
+		.scaleBy(12)
+	tQuery.createTorusKnot().addTo(world)
+		.position( 8,0, 4)
+		.scaleBy(12)
+		
+	var rendererCSS	= new THREE.CSS3DRenderer();
+	rendererCSS.setSize( window.innerWidth, window.innerHeight );
+	rendererCSS.domElement.style.position	= 'absolute';
+	rendererCSS.domElement.style.top	= 0;
+	rendererCSS.domElement.style.margin	= 0;
+	rendererCSS.domElement.style.padding	= 0;
+	document.body.appendChild( rendererCSS.domElement );
+
+	THREEx.WindowResize.bind(rendererCSS, world.camera().get(0));		
+
+	// put the mainRenderer on top
+	var rendererMain	= world.tRenderer();
+	rendererMain.domElement.style.position	= 'absolute';
+	rendererMain.domElement.style.top	= 0;
+	rendererMain.domElement.style.zIndex	= 1;
+	rendererCSS.domElement.appendChild( rendererMain.domElement );
+
+    /*
+    <div id="map" style="height: 180px;display:none"></div>
+    */
+
+    loadmapa();
+    mapa = document.getElementById( 'map' );
+	// var element = document.createElement( 'div' );
+	// element.style.width = '100px';
+	// element.style.height = '100px';
+	// element.style.background = new THREE.Color( Math.random() * 0xffffff ).getStyle();
+
+	var sceneCSS	= new THREE.Scene();
+	var objectCSS 	= new THREE.CSS3DObject( mapa );
+    window.objectCSS	= objectCSS
+	objectCSS.scale.multiplyScalar(1/63.5)
+	sceneCSS.add( objectCSS );
+
+	world.loop().hookPostRender(function(delta, now){
+     
+		rendererCSS.render( sceneCSS, world.tCamera() );
+	})
+</script></body>
