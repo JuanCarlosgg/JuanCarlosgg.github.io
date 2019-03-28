@@ -109,14 +109,29 @@ function initialize()
     mesh1 = new THREE.Mesh( geometry1, material1 );
 	mesh1.rotation.x = -Math.PI/2;
     markerRoot1.add( mesh1 );
+
+
+	// build markerControls
+	markerRoot2 = new THREE.Group();
+	scene.add(markerRoot2);
+	let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
+		type: 'pattern', patternUrl: "libs/data/data/mas.patt",
+	});
 	
 }
 var b = true;
 
 function update()
 {
+	console.log (mesh1.scale.x)
 	if (markerRoot1.visible == true){
-       // audio.play();
+        if (markerRoot2.visible == true){
+            if (mesh1.scale.x < 3) {
+                mesh1.scale.x += 0.01;
+                mesh1.scale.y += 0.01;
+                mesh1.scale.z += 0.01;
+            }
+        }
 	}
 
 	// update artoolkit on every frame
