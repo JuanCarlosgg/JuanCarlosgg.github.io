@@ -1,0 +1,173 @@
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<!--  three.js library -->
+<script src='../libs/three.js/build/three.js'></script>
+<!--  jsartookit -->
+<script src='../libs/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='../libs/jsartoolkit5/js/artoolkit.api.js'></script>
+<!--  OBJLoader -->
+<script src='../libs/js/loaders/OBJLoader.js'></script>
+<script src='../libs/js/loaders/TGALoader.js'></script>
+<script src='../libs/js/loaders/MTLLoader.js'></script>
+
+<!--  threex -->
+<script src="../libs/threex/threex-artoolkitsource.js"></script>
+<script src="../libs/threex/threex-artoolkitcontext.js"></script>
+<script src="../libs/threex/threex-arbasecontrols.js"></script>
+<script src="../libs/threex/threex-armarkercontrols.js"></script>
+
+
+
+<body style='margin : 10px; overflow: hidden; font-family: Monospace; display: block;background-color: aliceblue'>
+    <div style='position: absolute; background-color: white; '>
+        <ul>
+          <li><span>Leyendo: </span></li>
+          <li><span id="resultado"> </span></li>
+        </ul>
+    </div>
+    <div id="container" style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1; width: 640px; height: 480;'>
+	</div>
+	<script>
+
+		
+        var scene, camera, renderer, clock, deltaTime, totalTime;
+		var arToolkitSource, arToolkitContext;
+		var markerRoot1, markerRoot2, markerRoot3;
+		var mesh1, mesh2;
+		var escala;
+		var letra_object = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+		var array_letras_object = new Array();
+		var array_marker_name = ['patt/Aazul.patt', 'patt/Agris.patt', 'patt/Cnegra.patt',
+			'patt/Crosa.patt', 'patt/Engra.patt', 'patt/Hnegra.patt', 'patt/Onegra.patt'];
+		//var array_marker_name = ['patt/Cnegra.patt','patt/Aazul.patt',];
+
+		var array_marker = new Array();
+		initialize();
+		animate();
+		function initialize() {
+
+
+			scene = new THREE.Scene();
+			let ambientLight = new THREE.AmbientLight(0xcccccc, 0.5);
+			scene.add(ambientLight);
+           
+			camera = new THREE.Camera();
+			scene.add(camera);
+			renderer = new THREE.WebGLRenderer({
+				antialias: true,
+				alpha: true
+			});
+         
+
+
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setSize(640, 480);
+			renderer.domElement.style.position = 'fixed'
+			renderer.domElement.style.top = '50px'
+			renderer.domElement.style.left = '50px'
+			document.body.appendChild(renderer.domElement);
+			clock = new THREE.Clock();
+			deltaTime = 0;
+			totalTime = 0;
+
+			////////////////////////////////////////////////////////////
+			// setup arToolkitSource
+			////////////////////////////////////////////////////////////
+			arToolkitSource = new THREEx.ArToolkitSource({
+				sourceType: 'webcam',
+			//	sourceType:  'image',
+			//	sourceUrl :  'coche.jpg',	
+			});
+			function onResize() {
+				arToolkitSource.onResize()
+				arToolkitSource.copySizeTo(renderer.domElement)
+				if (arToolkitContext.arController !== null) {
+					arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)
+				}
+			}
+			arToolkitSource.init(function onReady() {
+				onResize()
+			});
+
+			// handle resize event
+			window.addEventListener('resize', function () {
+				onResize()
+			});
+
+			////////////////////////////////////////////////////////////
+			// setup arToolkitContext
+			////////////////////////////////////////////////////////////	
+			// create atToolkitContext
+			arToolkitContext = new THREEx.ArToolkitContext({
+				cameraParametersUrl: '../libs/data/data/camera_para.dat',
+				detectionMode: 'mono'
+			});
+
+			// copy projection matrix to camera when initialization complete
+			arToolkitContext.init(function onCompleted() {
+				camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+			});
+
+         
+			for (i = 0; i < array_marker_name.length; i++) {
+				var markerRoot = new THREE.Group();
+				markerRoot.name = array_marker_name[i];
+				scene.add(markerRoot);
+				let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+					type: 'pattern', patternUrl: array_marker_name[i],
+				});
+				const name = array_marker_name[i];
+				const letra = letra_object[letra_object.indexOf(name.charAt(5))]
+				console.log(name);
+				console.log(i);
+				console.log(letra);
+
+                var geometry = new THREE.PlaneGeometry( 1, 1, 1 );
+                var material = new THREE.MeshBasicMaterial( {color: 0x54ea520, side: THREE.DoubleSide} );
+                material.opacity = 0.3;
+                var plane = new THREE.Mesh( geometry, material );
+                plane.rotation.x = -Math.PI / 2;
+              
+                markerRoot.add( plane );
+
+                array_marker.push(markerRoot);
+
+			}
+		
+
+
+		}
+		var b = true;
+		var visible;
+		var string;
+		function update() {
+
+			//console.log(array_marker.length);
+			 visible = array_marker.filter(x => x.visible == true);
+		
+          //  console.log(visible);
+		    visible = visible.sort((x, y) => x.position.x > y.position.x);
+            console.log(visible.length);
+			// console.log(visible.length);
+			string = visible.map(x => x.name.charAt(5));
+            console.log(string);
+            document.getElementById( 'resultado' ).innerHTML= string.join('') ;
+
+			// update artoolkit on every frame
+			if (arToolkitSource.ready !== false)
+				arToolkitContext.update(arToolkitSource.domElement);
+		}
+		function render() {
+			renderer.render(scene, camera);
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			deltaTime = clock.getDelta();
+			totalTime += deltaTime;
+			update();
+			render();
+		}
+	</script>
+    </script>
+
+</body>
