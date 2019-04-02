@@ -39,7 +39,7 @@
 		var letra_object = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 		var array_letras_object = new Array();
 		var map;
-		var array_object = ["raton", "coche"];
+		var array_object = ["RATON", "COCHE"];
 		var array_marker = new Array();
 		initialize();
 		animate();
@@ -73,7 +73,7 @@
 			arToolkitSource = new THREEx.ArToolkitSource({
 				//	sourceType: 'webcam',
 				sourceType: 'image',
-				sourceUrl: 'coche.png',
+				sourceUrl: 'raton.png',
 			});
 			function onResize() {
 				arToolkitSource.onResize()
@@ -103,25 +103,29 @@
 
 			map = new Map();
 			for (i = 0; i < array_object.length; i++){
-				var nombre = array_object[i];
-				var file = 'objects/'+ nombre;
+				const nombre = array_object[i];
+				const fichero = 'objects/'+ nombre;
 				var loaderTexture = new THREE.MTLLoader();
-				var texture = loaderTexture.load(file + ".mtl", function( materials ){
+				const texture = loaderTexture.load(fichero + ".mtl", function( materials ){
 
 					materials.preload();
 
 					loader = new THREE.OBJLoader();
 					loader.setMaterials( materials );
-					loader.load(file + '.obj',
+					loader.load(fichero + '.obj',
 						function ( model ) {
 					
-						window.model = model;
-						model.position.y = 0.5;
+						//window.model = model;
 						
-						model.scale.set(1,1,1)//.multiplyScalar(0.1)
+						
+						model.scale.set(1,1,1).multiplyScalar(0.01);
 						mesh1 = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
+						//mesh1.position.y = -1.5;
+						mesh1.rotation.x = -10*Math.PI / 2;
+						//mesh1.position.y = 5;
+						console.log(nombre);
 						map.set(nombre, mesh1 );
-					
+						//scene.add(mesh1)
 
 					});
 
@@ -183,6 +187,7 @@
 					plane2.rotation.x = -Math.PI / 2;
 					markerRoot2.add(plane2);
 */
+
 					array_marker.push(markerRoot2);
 				}
 			} 
@@ -202,7 +207,8 @@
 			string = visible.map(x => x.name.charAt(0));
 			var obj = map.get (string.join(''));
 			if (obj != undefined){
-				markerRoot1.child[0] = obj;
+				console.log("RATON");
+				markerRoot1.children[0] = obj;
 			}
 			document.getElementById('resultado').innerHTML = string.join('');
 
