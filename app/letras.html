@@ -18,26 +18,37 @@
 
 
 
-<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-	<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+<body style='margin : 10px; overflow: hidden; font-family: Monospace; display: block;background-color: aliceblue'>
+	<div style='position: absolute; background-color: white; '>
+		<ul>
+			<li><span>Leyendo: </span></li>
+			<li><span id="resultado"> </span></li>
+		</ul>
+	</div>
+	<div id="container"
+		style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1; width: 640px; height: 480;'>
 	</div>
 	<script>
+
 
 		var scene, camera, renderer, clock, deltaTime, totalTime;
 		var arToolkitSource, arToolkitContext;
 		var markerRoot1, markerRoot2, markerRoot3;
 		var mesh1, mesh2;
 		var escala;
-		var letra_object = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+		var letra_object = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 		var array_letras_object = new Array();
-		var array_marker_name2 = ['patt/Aazul.patt', 'patt/Agris.patt', 'patt/Cnegra.patt',
-			'patt/Crosa.patt', 'patt/Engra.patt', 'patt/Hnegra.patt', 'patt/Onegra.patt'];
-		var array_marker_name = ['patt/Cnegra.patt','patt/Aazul.patt',];
-
+		var map;
+		var array_object = ["RATON", "COCHE"];
 		var array_marker = new Array();
+		var allPromises = [];
+
 		initialize();
 		animate();
 		function initialize() {
+
+		
+
 			scene = new THREE.Scene();
 			let ambientLight = new THREE.AmbientLight(0xcccccc, 0.5);
 			scene.add(ambientLight);
@@ -46,25 +57,26 @@
 			scene.add(camera);
 			renderer = new THREE.WebGLRenderer({
 				antialias: true,
-				alpha: true
+				alpha: true//,
+			//	logarithmicDepthBuffer: true
 			});
+
+
+
 			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 			renderer.setSize(640, 480);
-			renderer.domElement.style.position = 'absolute'
-			renderer.domElement.style.top = '0px'
-			renderer.domElement.style.left = '0px'
+			renderer.domElement.style.position = 'fixed'
+			renderer.domElement.style.top = '50px'
+			renderer.domElement.style.left = '50px'
 			document.body.appendChild(renderer.domElement);
 			clock = new THREE.Clock();
 			deltaTime = 0;
 			totalTime = 0;
 
-			////////////////////////////////////////////////////////////
-			// setup arToolkitSource
-			////////////////////////////////////////////////////////////
 			arToolkitSource = new THREEx.ArToolkitSource({
-				//sourceType: 'webcam',
-				sourceType:  'image',
-				sourceUrl :  'Cnegra.png',	
+					sourceType: 'webcam',
+				//sourceType: 'image',
+				//sourceUrl: 'coche.png',
 			});
 			function onResize() {
 				arToolkitSource.onResize()
@@ -82,125 +94,200 @@
 				onResize()
 			});
 
-			////////////////////////////////////////////////////////////
-			// setup arToolkitContext
-			////////////////////////////////////////////////////////////	
-			// create atToolkitContext
+
 			arToolkitContext = new THREEx.ArToolkitContext({
 				cameraParametersUrl: '../libs/data/data/camera_para.dat',
 				detectionMode: 'mono'
 			});
 
-			// copy projection matrix to camera when initialization complete
 			arToolkitContext.init(function onCompleted() {
 				camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
 			});
-
-			/*
+			map = new Map();
+		//	var promise = new Promise((resolve, reject)=> {
 				for (i = 0; i < letra_object.length ; i++) {
+					allPromises.push(new Promise((resolve, reject)=>{
+						let x = 1;
+						let letra = letra_object[i];
+						var loaderTexture = new THREE.MTLLoader();
+						var texture = loaderTexture.load("letras/"+ letra_object[i] +"/letras.mtl", function( materials ){
+				
+							materials.preload();
+						
+					
+							loader = new THREE.OBJLoader();
+							loader.setMaterials( materials );
+							loader.load("letras/"+ letra +"/letras.obj",
+								function ( model ) {
+									
+							//	var letra = loader.path.charAt(8);
+								window.model = model;
+								model.position.y = 0.5;
+								
+								model.scale.set(1,1,1)//.multiplyScalar(0.1)
+								let mesh = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
+								mesh.rotation.x = -Math.PI / 2;
+								
+								resolve( mesh );
+								map.set(letra+x,mesh);		
+							//	console.log(letra+ ' '+ mesh);
+							});
+					
+						});
+					}))
+					
+				
+			}
+			
+			Promise.all( allPromises )
+				.then((x) => {
+				for (i = 0; i < array_marker.length; i+=2) {
+					let letra = array_marker[i].name.charAt(0);
+					if (array_marker[i].children[0] == undefined ){
+					//		console.log(array_marker[i].name.charAt(0));
+							
+							var obj = map.get(array_marker[i].name.charAt(0)+1);
+
+							if (obj != undefined ) {
+								array_marker[i].add(obj);
+							//	console.log(array_marker[i].children);
+							}
+					} 	if (letra !== 'W' && letra !== 'X' && letra !== 'Ñ' && letra !== 'Z' && letra !== 'K') {
+					//	console.log(array_marker[i+1].name.charAt(0));
+							var obj = map.get(array_marker[i+1].name.charAt(0)+2);
+							if (obj != undefined ) {array_marker[i+1].add(obj)}
+					}
+
+						
+				}	
+
+			});
+			
+			for (i = 0; i < letra_object.length ; i++) {
+					let x = 2;
+					let letra = letra_object[i];
 					var loaderTexture = new THREE.MTLLoader();
 					var texture = loaderTexture.load("letras/"+ letra_object[i] +"/letras.mtl", function( materials ){
 			
 					materials.preload();
+				
 			
 					loader = new THREE.OBJLoader();
 					loader.setMaterials( materials );
-					loader.load("letras/"+ letra_object[i] +"/letras.obj",
+					loader.load("letras/"+ letra +"/letras.obj",
 						function ( model ) {
-				    
+							
+					//	var letra = loader.path.charAt(8);
 						window.model = model;
 						model.position.y = 0.5;
 						
 						model.scale.set(1,1,1)//.multiplyScalar(0.1)
 						let mesh = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
-						array_letras_object.push(mesh);		
+						mesh.rotation.x = -Math.PI / 2;
+
+						map.set(letra+x,mesh);		
+					//	console.log(letra+ ' '+ mesh);
 					});
 			
 				});
-				}
-			
-				
-			*/
-			for (i = 0; i < array_marker_name.length; i++) {
-				var markerRoot = new THREE.Group();
-				markerRoot.name = array_marker_name[i];
-				scene.add(markerRoot);
-				let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-					type: 'pattern', patternUrl: array_marker_name[i],
-				});
-				const name = array_marker_name[i];
-				const letra = letra_object[letra_object.indexOf(name.charAt(5))]
-				console.log(name);
-				console.log(i);
-				console.log(letra);
+			}
 
+		
+			for (i = 0; i < array_object.length; i++){
+				const nombre = array_object[i];
+				const fichero = 'objects/'+ nombre;
 				var loaderTexture = new THREE.MTLLoader();
-				var texture = loaderTexture.load("letras/" + letra + "/letras.mtl", function (materials) {
+				const texture = loaderTexture.load(fichero + ".mtl", function( materials ){
 
 					materials.preload();
 
 					loader = new THREE.OBJLoader();
-					loader.setMaterials(materials);
-					console.log(name);
+					loader.setMaterials( materials );
+					loader.load(fichero + '.obj',
+						function ( model ) {
+					
+						//window.model = model;
+						
+						
+						model.scale.set(1,1,1).multiplyScalar(0.01);
+						mesh1 = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
+						//mesh1.position.y = -1.5;
+						mesh1.rotation.x = -10*Math.PI / 2;
+						//mesh1.position.y = 5;
+					//	console.log(nombre);
+						map.set(nombre, mesh1 );
+						//scene.add(mesh1)
 
-					console.log();
-					loader.load("letras/" + letra + "/letras.obj",
-						function (model) {
+					});
 
-							window.model = model;
-							model.position.y = 0.5;
-
-							model.scale.set(1, 1, 1)//.multiplyScalar(0.1)
-							let mesh = new THREE.Mesh(model.children[0].geometry, model.children[0].material);
-							mesh.rotation.x = -Math.PI / 2;
-							markerRoot.add(mesh);
-							array_letras_object.push(mesh);
-						});
-
-
-					array_marker.push(markerRoot);
 				});
-
 			}
-			/*
-				markerRoot1 = new THREE.Group();
-				markerRoot1.name = "A azul";
-				scene.add(markerRoot1);
-				let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
-					type: 'pattern', patternUrl: "Aazul.patt",
+
+			markerRoot1 = new THREE.Group();
+			scene.add(markerRoot1);
+			let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+				type: 'pattern', patternUrl: "../libs/data/data/patt.hiro",
+			})
+
+			for (i = 0; i < letra_object.length; i++) {
+
+				var file = 'letras/' + letra_object[i] + '/' + letra_object[i] + '1.patt';
+				var markerRoot = new THREE.Group();
+				markerRoot.name = letra_object[i] + '/' + letra_object[i] + '1.patt';
+				scene.add(markerRoot);
+				let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+					type: 'pattern', patternUrl: file,
 				});
+				const name = letra_object[i] + '/' + letra_object[i] + '1.patt';
+				const letra = letra_object[i];
+				console.log(name);
+				console.log(i);
+				console.log(letra);
+
+			
+
+			//	console.log(markerRoot.children[0]);
+				array_marker.push(markerRoot);
 				
-				markerRoot2 = new THREE.Group();
-				markerRoot2.name = "A gris";
-				scene.add(markerRoot2);
-				let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
-					type: 'pattern', patternUrl: "Agris.patt",
-				});
-			*/
+				if (letra_object[i] !== 'W' && letra_object[i] !== 'X' && letra_object[i] !== 'Ñ' && letra_object[i] !== 'Z' && letra_object[i] !== 'K') {
+					var file2 = 'letras/' + letra_object[i] + '/' + letra_object[i] + '2.patt';
+					var markerRoot2 = new THREE.Group();
+					markerRoot2.name = letra_object[i] + '/' + letra_object[i] + '2.patt';
+					scene.add(markerRoot2);
+					let markerControls2 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
+						type: 'pattern', patternUrl: file2,
+					});
+					const name2 = letra_object[i] + '/' + letra_object[i] + '2.patt';
+					const letra2 = letra_object[i];
+					console.log(name2);
+					console.log(i + 27);
+
+					array_marker.push(markerRoot2);
+				}
+			} 
 
 
 		}
 		var b = true;
+		var visible;
+		var string;
+
+	
 
 		function update() {
+			string = null;
+			visible = array_marker.filter(x => x.visible == true);
+			visible = visible.sort((x, y) => x.position.x - y.position.x);
 
-			//console.log(array_marker.length);
-			let visible = array_marker.filter(x => x.visible);
-			console.log(visible.length);
-			let order = visible.sort((x, y) => x.position.x > y.position.x);
-			// console.log(visible.length);
-			for (i = 0; i < visible.length; i++) {
-				console.log(visible[i].name);
+			string = visible.map(x => x.name.charAt(0));
+
+			var obj = map.get (string.join(''));
+			if (obj != undefined){
+				markerRoot1.add(obj);markerRoot1.children = new Array();
+				markerRoot1.add(obj);
 			}
-			/*
-			if (markerRoot1.visible == true){
-				console.log('Marcador 1: ' +markerRoot1.position.x);
-			}
-			if (markerRoot2.visible == true){
-				console.log('Marcador 2: '+ markerRoot2.position.x);
-			}     
-			*/
-			// update artoolkit on every frame
+			document.getElementById('resultado').innerHTML = string.join('');
+
 			if (arToolkitSource.ready !== false)
 				arToolkitContext.update(arToolkitSource.domElement);
 		}
@@ -214,6 +301,8 @@
 			update();
 			render();
 		}
+		
 	</script>
 	</script>
+
 </body>

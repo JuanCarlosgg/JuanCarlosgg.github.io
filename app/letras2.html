@@ -41,6 +41,8 @@
 		var map;
 		var array_object = ["RATON", "COCHE"];
 		var array_marker = new Array();
+		var allPromises = [];
+
 		initialize();
 		animate();
 		function initialize() {
@@ -55,7 +57,8 @@
 			scene.add(camera);
 			renderer = new THREE.WebGLRenderer({
 				antialias: true,
-				alpha: true
+				alpha: true//,
+			//	logarithmicDepthBuffer: true
 			});
 
 
@@ -73,7 +76,7 @@
 			arToolkitSource = new THREEx.ArToolkitSource({
 				//		sourceType: 'webcam',
 				sourceType: 'image',
-				sourceUrl: 'raton.png',
+				sourceUrl: 'coche.png',
 			});
 			function onResize() {
 				arToolkitSource.onResize()
@@ -100,8 +103,96 @@
 			arToolkitContext.init(function onCompleted() {
 				camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
 			});
-
 			map = new Map();
+		//	var promise = new Promise((resolve, reject)=> {
+				for (i = 0; i < letra_object.length ; i++) {
+					allPromises.push(new Promise((resolve, reject)=>{
+						let x = 1;
+						let letra = letra_object[i];
+						var loaderTexture = new THREE.MTLLoader();
+						var texture = loaderTexture.load("letras/"+ letra_object[i] +"/letras.mtl", function( materials ){
+				
+							materials.preload();
+						
+					
+							loader = new THREE.OBJLoader();
+							loader.setMaterials( materials );
+							loader.load("letras/"+ letra +"/letras.obj",
+								function ( model ) {
+									
+							//	var letra = loader.path.charAt(8);
+								window.model = model;
+								model.position.y = 0.5;
+								
+								model.scale.set(1,1,1)//.multiplyScalar(0.1)
+								let mesh = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
+								mesh.rotation.x = -Math.PI / 2;
+								
+								resolve( mesh );
+								map.set(letra+x,mesh);		
+							//	console.log(letra+ ' '+ mesh);
+							});
+					
+						});
+					}))
+					
+				
+			}
+			
+			Promise.all( allPromises )
+				.then((x) => {
+				for (i = 0; i < array_marker.length; i+=2) {
+					let letra = array_marker[i].name.charAt(0);
+					if (array_marker[i].children[0] == undefined ){
+					//		console.log(array_marker[i].name.charAt(0));
+							
+							var obj = map.get(array_marker[i].name.charAt(0)+1);
+
+							if (obj != undefined ) {
+								array_marker[i].add(obj);
+							//	console.log(array_marker[i].children);
+							}
+					} 	if (letra !== 'W' && letra !== 'X' && letra !== 'Ñ' && letra !== 'Z' && letra !== 'K') {
+					//	console.log(array_marker[i+1].name.charAt(0));
+							var obj = map.get(array_marker[i+1].name.charAt(0)+2);
+							if (obj != undefined ) {array_marker[i+1].add(obj)}
+					}
+
+						
+				}	
+
+			});
+			
+			for (i = 0; i < letra_object.length ; i++) {
+					let x = 2;
+					let letra = letra_object[i];
+					var loaderTexture = new THREE.MTLLoader();
+					var texture = loaderTexture.load("letras/"+ letra_object[i] +"/letras.mtl", function( materials ){
+			
+					materials.preload();
+				
+			
+					loader = new THREE.OBJLoader();
+					loader.setMaterials( materials );
+					loader.load("letras/"+ letra +"/letras.obj",
+						function ( model ) {
+							
+					//	var letra = loader.path.charAt(8);
+						window.model = model;
+						model.position.y = 0.5;
+						
+						model.scale.set(1,1,1)//.multiplyScalar(0.1)
+						let mesh = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
+						mesh.rotation.x = -Math.PI / 2;
+
+						map.set(letra+x,mesh);		
+					//	console.log(letra+ ' '+ mesh);
+					});
+			
+				});
+			}
+
+		
 			for (i = 0; i < array_object.length; i++){
 				const nombre = array_object[i];
 				const fichero = 'objects/'+ nombre;
@@ -123,7 +214,7 @@
 						//mesh1.position.y = -1.5;
 						mesh1.rotation.x = -10*Math.PI / 2;
 						//mesh1.position.y = 5;
-						console.log(nombre);
+					//	console.log(nombre);
 						map.set(nombre, mesh1 );
 						//scene.add(mesh1)
 
@@ -153,15 +244,9 @@
 				console.log(i);
 				console.log(letra);
 
-/*
-				var geometry = new THREE.PlaneGeometry(1, 1, 1);
-				var material = new THREE.MeshBasicMaterial({ color: 0x54ea520, side: THREE.DoubleSide });
-				material.opacity = 0.3;
-				var plane = new THREE.Mesh(geometry, material);
+			
 
-				plane.rotation.x = -Math.PI / 2;
-				markerRoot.add(plane);
-*/
+			//	console.log(markerRoot.children[0]);
 				array_marker.push(markerRoot);
 				
 				if (letra_object[i] !== 'W' && letra_object[i] !== 'X' && letra_object[i] !== 'Ñ' && letra_object[i] !== 'Z' && letra_object[i] !== 'K') {
@@ -176,17 +261,6 @@
 					const letra2 = letra_object[i];
 					console.log(name2);
 					console.log(i + 27);
-					console.log(letra2);
-
-/*
-					var geometry2 = new THREE.PlaneGeometry(1, 1, 1);
-					var material2 = new THREE.MeshBasicMaterial({ color: 0x54ea520, side: THREE.DoubleSide });
-					material2.opacity = 0.3;
-					var plane2 = new THREE.Mesh(geometry2, material2);
-
-					plane2.rotation.x = -Math.PI / 2;
-					markerRoot2.add(plane2);
-*/
 
 					array_marker.push(markerRoot2);
 				}
@@ -198,6 +272,7 @@
 		var visible;
 		var string;
 
+	
 
 		function update() {
 			string = null;
@@ -205,9 +280,10 @@
 			visible = visible.sort((x, y) => x.position.x - y.position.x);
 
 			string = visible.map(x => x.name.charAt(0));
+
 			var obj = map.get (string.join(''));
 			if (obj != undefined){
-				console.log("RATON");
+				//console.log("RATON");
 				markerRoot1.add(obj);
 			}
 			document.getElementById('resultado').innerHTML = string.join('');
@@ -225,6 +301,7 @@
 			update();
 			render();
 		}
+		
 	</script>
 	</script>
 
