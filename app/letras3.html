@@ -71,7 +71,7 @@
 			totalTime = 0;
 
 			arToolkitSource = new THREEx.ArToolkitSource({
-					sourceType: 'webcam',
+						sourceType: 'webcam',
 				//sourceType: 'image',
 				//sourceUrl: 'raton.png',
 			});
@@ -200,7 +200,7 @@
 
 
 		function update() {
-
+			string = null;
 			visible = array_marker.filter(x => x.visible == true);
 			visible = visible.sort((x, y) => x.position.x - y.position.x);
 
