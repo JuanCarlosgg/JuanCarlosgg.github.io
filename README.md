@@ -6,6 +6,8 @@
 + [Ejemplo base](https://juancarlosgg.github.io/pagina.html)
 + [Cubo](https://juancarlosgg.github.io/cubo.html) 
 + [Modelo](https://juancarlosgg.github.io/modelo.html)
+
+
 + [Dos marcadores](https://juancarlosgg.github.io/dos_marcas.html) 
 
 Marcadores: 
@@ -25,9 +27,6 @@ Marcadores:
 <img src="https://github.com/JuanCarlosgg/JuanCarlosgg.github.io/blob/master/libs/data/data/mas.png" width="200" height="200">
 <img src="https://github.com/JuanCarlosgg/JuanCarlosgg.github.io/blob/master/libs/data/data/menos.png" width="200" height="200">
 
-
-
-+ [Video](htps://juancarlosgg.github.io/video.html)
-+ [Audio](htps://juancarlosgg.github.io/audio.html)
-
++ [Video](https://juancarlosgg.github.io/video.html)
++ [Audio](https://juancarlosgg.github.io/audio.html)
 
