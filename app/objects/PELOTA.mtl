@@ -1,0 +1,100 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 28.11.2011 08:51:53
+
+newmtl Ball_green_leather
+	Ns 53.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.1800 0.1800 0.1800
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/BallGreen.jpg
+	map_Kd objects/BallGreen.jpg
+
+newmtl Ball_red_leather
+	Ns 53.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.1800 0.1800 0.1800
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/BallRed.jpg
+	map_Kd objects/BallRed.jpg
+
+newmtl Ball_blue_leather
+	Ns 53.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.1800 0.1800 0.1800
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/Ballblue.jpg
+	map_Kd objects/Ballblue.jpg
+
+newmtl Ball_orange_leather
+	Ns 53.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.1800 0.1800 0.1800
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/BallOrange.jpg
+	map_Kd objects/BallOrange.jpg
+
+newmtl Ball_while_leather
+	Ns 53.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.1800 0.1800 0.1800
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/BallWhite.jpg
+	map_Kd objects/BallWhite.jpg
+
+newmtl Ball_yellow_leather
+	Ns 53.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.1800 0.1800 0.1800
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/BallYellow.jpg
+	map_Kd objects/BallYellow.jpg
+
+newmtl ball_rope
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka objects/Ball_Rope_diff.jpg
+	map_Kd objects/Ball_Rope_diff.jpg

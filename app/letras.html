@@ -39,7 +39,7 @@
 		var letra_object = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 		var array_letras_object = new Array();
 		var map;
-		var array_object = ["RATON", "COCHE", "ARBOL"];
+		var array_object = ["RATON", "COCHE", "ARBOL", "GATO", "PATO", "BALON", "PELOTA"];
 		var array_marker = new Array();
 		var allPromises = [];
 
@@ -180,10 +180,9 @@
 						window.model = model;
 						model.position.y = 0.5;
 						
-						model.scale.set(1,1,1).multiplyScalar(0.1)
+						model.scale.set(1,1,1)//.multiplyScalar(0.1)
 						let mesh = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
 						mesh.rotation.x = -Math.PI / 2;
-
 						map.set(letra+x,mesh);		
 					//	console.log(letra+ ' '+ mesh);
 					});
@@ -205,13 +204,15 @@
 					loader.load(fichero + '.obj',
 						function ( model ) {
 					
-						model.scale.set(1,1,1).multiplyScalar(0.01);
-						mesh1 = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
+					//	model.scale.set(1,1,1).multiplyScalar(0.01);
+					//	mesh1 = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
 						//mesh1.position.y = -1.5;
-						mesh1.rotation.x = -10*Math.PI / 2;
+					//	mesh1.rotation.x = -10*Math.PI / 2;
 						//mesh1.position.y = 5;
+						model.scale.multiplyScalar(0.2);
+						model.rotation.x = -10*Math.PI / 2;
 					//	console.log(nombre);
-						map.set(nombre, mesh1 );
+						map.set(nombre, model );
 						//scene.add(mesh1)
 
 					});
