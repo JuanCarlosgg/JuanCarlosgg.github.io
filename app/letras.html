@@ -180,7 +180,7 @@
 						window.model = model;
 						model.position.y = 0.5;
 						
-						model.scale.set(1,1,1)//.multiplyScalar(0.1)
+						model.scale.set(1,1,1).multiplyScalar(0.1)
 						let mesh = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
 						mesh.rotation.x = -Math.PI / 2;
 
