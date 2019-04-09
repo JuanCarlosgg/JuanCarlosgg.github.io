@@ -39,7 +39,7 @@
 		var letra_object = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 		var array_letras_object = new Array();
 		var map;
-		var array_object = ["RATON", "COCHE"];
+		var array_object = ["RATON", "COCHE", "ARBOL"];
 		var array_marker = new Array();
 		var allPromises = [];
 
@@ -57,8 +57,7 @@
 			scene.add(camera);
 			renderer = new THREE.WebGLRenderer({
 				antialias: true,
-				alpha: true//,
-			//	logarithmicDepthBuffer: true
+				alpha: true
 			});
 
 
@@ -76,7 +75,7 @@
 			arToolkitSource = new THREEx.ArToolkitSource({
 					sourceType: 'webcam',
 				//sourceType: 'image',
-				//sourceUrl: 'coche.png',
+				//sourceUrl: 'arbol.png',
 			});
 			function onResize() {
 				arToolkitSource.onResize()
@@ -89,7 +88,6 @@
 				onResize()
 			});
 
-			// handle resize event
 			window.addEventListener('resize', function () {
 				onResize()
 			});
@@ -120,7 +118,6 @@
 							loader.load("letras/"+ letra +"/letras.obj",
 								function ( model ) {
 									
-							//	var letra = loader.path.charAt(8);
 								window.model = model;
 								model.position.y = 0.5;
 								
@@ -130,7 +127,6 @@
 								
 								resolve( mesh );
 								map.set(letra+x,mesh);		
-							//	console.log(letra+ ' '+ mesh);
 							});
 					
 						});
@@ -144,18 +140,21 @@
 				for (i = 0; i < array_marker.length; i+=2) {
 					let letra = array_marker[i].name.charAt(0);
 					if (array_marker[i].children[0] == undefined ){
-					//		console.log(array_marker[i].name.charAt(0));
+							console.log(array_marker[i].name.charAt(0));
 							
 							var obj = map.get(array_marker[i].name.charAt(0)+1);
-
 							if (obj != undefined ) {
 								array_marker[i].add(obj);
 							//	console.log(array_marker[i].children);
 							}
 					} 	if (letra !== 'W' && letra !== 'X' && letra !== 'Ñ' && letra !== 'Z' && letra !== 'K') {
-					//	console.log(array_marker[i+1].name.charAt(0));
+							console.log(array_marker[i+1].name.charAt(0));
 							var obj = map.get(array_marker[i+1].name.charAt(0)+2);
-							if (obj != undefined ) {array_marker[i+1].add(obj)}
+							if (obj != undefined ) {
+								array_marker[i+1].add(obj)
+							}
+					} else {
+						i-=1;
 					}
 
 						
@@ -206,9 +205,6 @@
 					loader.load(fichero + '.obj',
 						function ( model ) {
 					
-						//window.model = model;
-						
-						
 						model.scale.set(1,1,1).multiplyScalar(0.01);
 						mesh1 = new THREE.Mesh( model.children[0].geometry, model.children[0].material);
 						//mesh1.position.y = -1.5;
@@ -283,7 +279,7 @@
 
 			var obj = map.get (string.join(''));
 			if (obj != undefined){
-				markerRoot1.add(obj);markerRoot1.children = new Array();
+				markerRoot1.children = new Array();
 				markerRoot1.add(obj);
 			}
 			document.getElementById('resultado').innerHTML = string.join('');
