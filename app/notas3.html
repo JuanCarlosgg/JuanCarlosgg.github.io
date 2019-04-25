@@ -38,6 +38,7 @@
         var array_marker_started = new Array(notas.length).fill(false);
 		var array_marker = new Array();
 		var map = new Map();
+		var context = new AudioContext();
 	//	var array_marker_time = new Array(notas.length()).fill(0.0);
 
 		initialize();
@@ -114,7 +115,7 @@
 				console.log(i);
 				console.log(letra);
             
-                var context = new AudioContext();
+               // var context = new AudioContext();
                 var o = context.createOscillator();
                 var frequency = freq_notas[i];
                 o.frequency.value = frequency
@@ -145,7 +146,7 @@
                 if (array_marker_started[idx] == true) {
                     map.get(x.name).stop(0);
                   
-                    var context = new AudioContext();
+                   
                     var o = context.createOscillator();
                     var frequency = freq_notas[idx];
                     o.frequency.value = frequency
