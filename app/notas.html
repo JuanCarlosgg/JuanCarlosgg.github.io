@@ -39,6 +39,7 @@
 
 
         initialize();
+		var visible_old = array_marker.filter(x => x.visible == true);
 		animate();
 		function initialize() {
 
@@ -119,8 +120,8 @@
 
 
 		}
-		var b = true;
-		var old_visible = new Array();
+		//var b = true;
+	//	var visible_old = array_marker.filter(x => x.visible == true);
 		var no_visible;
 		var array_result;
 		var string;
@@ -129,16 +130,25 @@
 
 		function update() {
 			string = null;
-			no_visible = array_marker.filter(x => x.visible == false);
+
 		//	no_visible = no_visible.sort((x, y) => x.position.x - y.position.x);
-			array_result =  no_visible.filter(value => old_visible.includes(value))
-			old_visible = array_marker.filter(x => x.visible == true);
-			string = no_visible.map(x => x.name);
+			no_visible = array_marker.filter(x => x.visible == false);
+			//array_result =  no_visible.filter(x => old_visible.includes(x));
+			array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
+		//	array_result = new Array();
+			visible_old = array_marker.filter(x => x.visible == true);
+
+			string = array_result.map(x => x.name);
 
 			var obj = map.get (string.join(' '));
 			document.getElementById('resultado').innerHTML = string.join('');
 
 			array_result.forEach( x => map.get(x.name).play());
+		/*	if (visible_old == undefined) {
+				console.log('a' + visible_old );
+				visible_old = new Array();
+			}
+			*/
 
 			if (arToolkitSource.ready !== false)
 				arToolkitContext.update(arToolkitSource.domElement);
