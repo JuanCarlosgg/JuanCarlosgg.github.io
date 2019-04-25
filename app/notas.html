@@ -129,7 +129,11 @@
 
 		function update() {
 			string = null;
-			array_marker.forEach(x => map.get(x.name).stop());
+			array_marker.forEach(x =>{
+				var audio = map.get(x.name);
+				audio.pause(); 
+				audio.currentTime = 0 
+			});
 			no_visible = array_marker.filter(x => x.visible == false);
 			array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
 			visible_old = array_marker.filter(x => x.visible == true);
