@@ -17,7 +17,17 @@
 <script src="../libs/threex/threex-armarkercontrols.js"></script>
 
 <body style='margin : 10px; overflow: hidden; font-family: Monospace; display: block;background-color: aliceblue'>
-    <script>
+	<div style='position: absolute; background-color: white; '>
+		<ul>
+			<li><span>Leyendo: </span></li>
+			<li><span id="resultado"> </span></li>
+		</ul>
+	</div>
+	<div id="container"
+		style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1; width: 640px; height: 480;'>
+	</div>
+	
+	<script>
         var scene, camera, renderer, clock, deltaTime, totalTime;
 		var arToolkitSource, arToolkitContext;
 		var markerRoot1, markerRoot2, markerRoot3;
@@ -87,17 +97,17 @@
 				camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
 			});
 
-			for (i = 0; i < nota.length; i++) {
+			for (i = 0; i < notas.length; i++) {
 
-                const audio = 'notas/audio/' + nota[i] + '.wav';
-				var file = 'notas/' + nota[i] + '.patt';
+                const audio = 'notas/audio/' + notas[i] + '.wav';
+				var file = 'notas/' + notas[i] + '.patt';
 				var markerRoot = new THREE.Group();
-				markerRoot.name = nota[i];
+				markerRoot.name = notas[i];
 				scene.add(markerRoot);
 				let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
 					type: 'pattern', patternUrl: file,
 				});
-				const letra = nota[i];
+				const letra = notas[i];
 				console.log(i);
 				console.log(letra);
                 map.set(letra, new Audio(audio));
@@ -110,7 +120,9 @@
 
 		}
 		var b = true;
+		var old_visible = new Array();
 		var no_visible;
+		var array_result;
 		var string;
 
 	
@@ -119,13 +131,14 @@
 			string = null;
 			no_visible = array_marker.filter(x => x.visible == false);
 		//	no_visible = no_visible.sort((x, y) => x.position.x - y.position.x);
-
+			array_result =  no_visible.filter(value => old_visible.includes(value))
+			old_visible = array_marker.filter(x => x.visible == true);
 			string = no_visible.map(x => x.name);
 
 			var obj = map.get (string.join(' '));
 			document.getElementById('resultado').innerHTML = string.join('');
 
-            no_visible.forEach( x => map.get(x.name).play());
+			array_result.forEach( x => map.get(x.name).play());
 
 			if (arToolkitSource.ready !== false)
 				arToolkitContext.update(arToolkitSource.domElement);
