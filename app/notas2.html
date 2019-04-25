@@ -121,7 +121,7 @@
 
 		}
 
-		var no_visible;
+		var visible;
 		var array_result;
 		var string;
 
@@ -130,17 +130,17 @@
 		function update() {
 			string = null;
 
-			no_visible = array_marker.filter(x => x.visible == false);
-			array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
-			visible_old = array_marker.filter(x => x.visible == true);
-			visible_old.concat(array_result);
+			visible = array_marker.filter(x => x.visible == false);
+		//	array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
+		//	visible_old = array_marker.filter(x => x.visible == true);
+		//	visible_old.concat(array_result);
 
 			string = array_result.map(x => x.name);
 
 			var obj = map.get(string.join(' '));
 			document.getElementById('resultado').innerHTML = string.join('');
 
-			array_result.forEach(x => map.get(x.name).play());
+			visible.forEach(x => map.get(x.name).play());
 
 
 			if (arToolkitSource.ready !== false)
