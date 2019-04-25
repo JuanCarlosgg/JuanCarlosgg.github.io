@@ -131,12 +131,10 @@
 		function update() {
 			string = null;
 
-		//	no_visible = no_visible.sort((x, y) => x.position.x - y.position.x);
 			no_visible = array_marker.filter(x => x.visible == false);
-			//array_result =  no_visible.filter(x => old_visible.includes(x));
 			array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
-		//	array_result = new Array();
 			visible_old = array_marker.filter(x => x.visible == true);
+			visible_old.concat(array_result);
 
 			string = array_result.map(x => x.name);
 
