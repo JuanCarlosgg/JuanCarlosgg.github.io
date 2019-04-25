@@ -1,0 +1,149 @@
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<!--  three.js library -->
+<script src='../libs/three.js/build/three.js'></script>
+<!--  jsartookit -->
+<script src='../libs/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='../libs/jsartoolkit5/js/artoolkit.api.js'></script>
+<!--  OBJLoader -->
+<script src='../libs/js/loaders/OBJLoader.js'></script>
+<script src='../libs/js/loaders/TGALoader.js'></script>
+<script src='../libs/js/loaders/MTLLoader.js'></script>
+
+<!--  threex -->
+<script src="../libs/threex/threex-artoolkitsource.js"></script>
+<script src="../libs/threex/threex-artoolkitcontext.js"></script>
+<script src="../libs/threex/threex-arbasecontrols.js"></script>
+<script src="../libs/threex/threex-armarkercontrols.js"></script>
+
+<body style='margin : 10px; overflow: hidden; font-family: Monospace; display: block;background-color: aliceblue'>
+    <script>
+        var scene, camera, renderer, clock, deltaTime, totalTime;
+		var arToolkitSource, arToolkitContext;
+		var markerRoot1, markerRoot2, markerRoot3;
+		var mesh1, mesh2;
+		var escala;
+        const notas = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+		var array_marker = new Array();
+		var map = new Map();
+
+
+        initialize();
+		animate();
+		function initialize() {
+
+		
+
+			scene = new THREE.Scene();
+			let ambientLight = new THREE.AmbientLight(0xcccccc, 0.5);
+			scene.add(ambientLight);
+
+			camera = new THREE.Camera();
+			scene.add(camera);
+			renderer = new THREE.WebGLRenderer({
+				antialias: true,
+				alpha: true
+			});
+
+
+
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setSize(640, 480);
+			renderer.domElement.style.position = 'fixed'
+			renderer.domElement.style.top = '50px'
+			renderer.domElement.style.left = '50px'
+			document.body.appendChild(renderer.domElement);
+			clock = new THREE.Clock();
+			deltaTime = 0;
+			totalTime = 0;
+
+			arToolkitSource = new THREEx.ArToolkitSource({
+				sourceType: 'webcam',
+				//sourceType: 'image',
+				//sourceUrl: 'arbol.png',
+			});
+			function onResize() {
+				arToolkitSource.onResize()
+				arToolkitSource.copySizeTo(renderer.domElement)
+				if (arToolkitContext.arController !== null) {
+					arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)
+				}
+			}
+			arToolkitSource.init(function onReady() {
+				onResize()
+			});
+
+			window.addEventListener('resize', function () {
+				onResize()
+			});
+
+
+			arToolkitContext = new THREEx.ArToolkitContext({
+				cameraParametersUrl: '../libs/data/data/camera_para.dat',
+				detectionMode: 'mono'
+			});
+
+			arToolkitContext.init(function onCompleted() {
+				camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+			});
+
+			for (i = 0; i < nota.length; i++) {
+
+                const audio = 'notas/audio/' + nota[i] + '.wav';
+				var file = 'notas/' + nota[i] + '.patt';
+				var markerRoot = new THREE.Group();
+				markerRoot.name = nota[i];
+				scene.add(markerRoot);
+				let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+					type: 'pattern', patternUrl: file,
+				});
+				const letra = nota[i];
+				console.log(i);
+				console.log(letra);
+                map.set(letra, new Audio(audio));
+			
+
+			//	console.log(markerRoot.children[0]);
+				array_marker.push(markerRoot);
+			} 
+
+
+		}
+		var b = true;
+		var no_visible;
+		var string;
+
+	
+
+		function update() {
+			string = null;
+			no_visible = array_marker.filter(x => x.visible == false);
+		//	no_visible = no_visible.sort((x, y) => x.position.x - y.position.x);
+
+			string = no_visible.map(x => x.name);
+
+			var obj = map.get (string.join(' '));
+			document.getElementById('resultado').innerHTML = string.join('');
+
+            no_visible.forEach( x => map.get(x.name).play());
+
+			if (arToolkitSource.ready !== false)
+				arToolkitContext.update(arToolkitSource.domElement);
+		}
+		function render() {
+			renderer.render(scene, camera);
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			deltaTime = clock.getDelta();
+			totalTime += deltaTime;
+			update();
+			render();
+		}
+		
+
+
+
+    </script>
+
+</body>
