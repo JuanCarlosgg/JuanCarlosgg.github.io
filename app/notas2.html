@@ -135,7 +135,7 @@
 		//	visible_old = array_marker.filter(x => x.visible == true);
 		//	visible_old.concat(array_result);
 
-			string = array_result.map(x => x.name);
+			string = visible.map(x => x.name);
 
 			var obj = map.get(string.join(' '));
 			document.getElementById('resultado').innerHTML = string.join('');
