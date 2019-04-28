@@ -34,12 +34,11 @@
 		var mesh1, mesh2;
 		var escala;
 		const notas = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
-        const freq_notas = [261, 293, 329, 349, 392, 440, 493];
-        var array_marker_started = new Array(notas.length).fill(false);
+		const freq_notas = [261, 293, 329, 349, 392, 440, 493];
+		var array_marker_started = new Array(notas.length).fill(false);
+		//	var marker_timestamps = new Array(notas.length).fill(0.0);
 		var array_marker = new Array();
 		var map = new Map();
-		var context = new AudioContext();
-	//	var array_marker_time = new Array(notas.length()).fill(0.0);
 
 		initialize();
 		var visible_old = array_marker.filter(x => x.visible == true);
@@ -103,7 +102,7 @@
 
 			for (i = 0; i < notas.length; i++) {
 
-			//	const audio = 'notas/audio/' + notas[i] + '.wav';
+				//	const audio = 'notas/audio/' + notas[i] + '.wav';
 				var file = 'notas/' + notas[i] + '.patt';
 				var markerRoot = new THREE.Group();
 				markerRoot.name = notas[i];
@@ -112,17 +111,16 @@
 					type: 'pattern', patternUrl: file,
 				});
 				const letra = notas[i];
-				console.log(i);
-				console.log(letra);
-            
-               // var context = new AudioContext();
-                var o = context.createOscillator();
-                var frequency = freq_notas[i];
-                o.frequency.value = frequency
-                o.type = "sine";
-                o.connect(context.destination);
-
-				map.set(letra, o );
+				console.log(i); console.log(letra);
+				var context = new (window.AudioContext || window.webkitAudioContext);
+				var gainNode = context.createGain();
+				gainNode.gain.value = 0.14;
+				gainNode.connect(context.destination);
+				var oscillator = context.createOscillator();
+				oscillator.frequency.value = freq_notas[i];
+				oscillator.connect(gainNode);
+				oscillator.start(0);
+				map.set(letra, context);
 				array_marker.push(markerRoot);
 			}
 
@@ -141,37 +139,34 @@
 			no_visible = array_marker.filter(x => x.visible == false);
 			array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
 			visible_old = array_marker.filter(x => x.visible == true);
-            visible_old.forEach(x => { 
-                var idx = array_marker.indexOf(x);
-                if (array_marker_started[idx] == true) {
-                    map.get(x.name).stop(0);
-                  
-                   
-                    var o = context.createOscillator();
-                    var frequency = freq_notas[idx];
-                    o.frequency.value = frequency
-                    o.type = "sine";
-                    o.connect(context.destination);
-                    map.set(x.name, o);
-                  
-                    array_marker_started[idx] = false;
-                }
-            });
 			visible_old.concat(array_result);
-            
-			string = array_result.map(x => x.name);
-            
+			visible_old.forEach(x => {
+				var idx = array_marker.indexOf(x);
+				if (array_marker_started[idx] == true) {
+					var oscillator = map.get(x.name);
+					oscillator.suspend();
+					console.log("suspendiendo audio");
+					array_marker_started[idx] = false;
+				}
+			});
+
+
+			string = visible_old.map(x => x.name);
+
 			var obj = map.get(string.join(' '));
 			document.getElementById('resultado').innerHTML = string.join('');
-            
-			array_result.forEach(x => { 
-                var idx = array_marker.indexOf(x);
-                var audio = map.get(x.name);
-                audio.start(0);
-                audio.stop(1);
-                array_marker_started[idx] = true;
-            });
 
+			array_result.forEach(x => {
+				var idx = array_marker.indexOf(x);
+				var oscillator = map.get(x.name);
+				oscillator.resume();
+				array_marker_started[idx] = true;
+				setTimeout(
+					function () {
+						oscillator.suspend();
+						array_marker_started[idx] = false;
+					}, 5000);
+			});
 
 			if (arToolkitSource.ready !== false)
 				arToolkitContext.update(arToolkitSource.domElement);
@@ -186,10 +181,6 @@
 			update();
 			render();
 		}
-
-
-
-
 	</script>
 
 </body>

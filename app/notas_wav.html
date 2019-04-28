@@ -1,0 +1,196 @@
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+<!--  three.js library -->
+<script src='../libs/three.js/build/three.js'></script>
+<!--  jsartookit -->
+<script src='../libs/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='../libs/jsartoolkit5/js/artoolkit.api.js'></script>
+<!--  OBJLoader -->
+<script src='../libs/js/loaders/OBJLoader.js'></script>
+<script src='../libs/js/loaders/TGALoader.js'></script>
+<script src='../libs/js/loaders/MTLLoader.js'></script>
+
+<!--  threex -->
+<script src="../libs/threex/threex-artoolkitsource.js"></script>
+<script src="../libs/threex/threex-artoolkitcontext.js"></script>
+<script src="../libs/threex/threex-arbasecontrols.js"></script>
+<script src="../libs/threex/threex-armarkercontrols.js"></script>
+<script src="BufferLoader.js"></script>
+
+<body style='margin : 10px; overflow: hidden; font-family: Monospace; display: block;background-color: aliceblue'>
+    <div style='position: absolute; background-color: white; '>
+        <ul>
+            <li><span>Leyendo: </span></li>
+            <li><span id="resultado"> </span></li>
+        </ul>
+    </div>
+    <div id="container"
+        style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1; width: 640px; height: 480;'>
+    </div>
+
+    <script>
+        var scene, camera, renderer, clock, deltaTime, totalTime;
+        var arToolkitSource, arToolkitContext;
+        var markerRoot1, markerRoot2, markerRoot3;
+        var mesh1, mesh2;
+        var escala;
+        const notas = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+        const freq_notas = [261, 293, 329, 349, 392, 440, 493];
+        var array_marker_started = new Array(notas.length).fill(false);
+        //	var marker_timestamps = new Array(notas.length).fill(0.0);
+        var array_marker = new Array();
+        var map = new Map();
+
+        initialize();
+        var visible_old = array_marker.filter(x => x.visible == true);
+        animate();
+        function initialize() {
+
+
+
+            scene = new THREE.Scene();
+            let ambientLight = new THREE.AmbientLight(0xcccccc, 0.5);
+            scene.add(ambientLight);
+
+            camera = new THREE.Camera();
+            scene.add(camera);
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+
+
+
+            renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+            renderer.setSize(640, 480);
+            renderer.domElement.style.position = 'fixed'
+            renderer.domElement.style.top = '50px'
+            renderer.domElement.style.left = '50px'
+            document.body.appendChild(renderer.domElement);
+            clock = new THREE.Clock();
+            deltaTime = 0;
+            totalTime = 0;
+
+            arToolkitSource = new THREEx.ArToolkitSource({
+                sourceType: 'webcam',
+                //sourceType: 'image',
+                //sourceUrl: 'arbol.png',
+            });
+            function onResize() {
+                arToolkitSource.onResize()
+                arToolkitSource.copySizeTo(renderer.domElement)
+                if (arToolkitContext.arController !== null) {
+                    arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)
+                }
+            }
+            arToolkitSource.init(function onReady() {
+                onResize()
+            });
+
+            window.addEventListener('resize', function () {
+                onResize()
+            });
+
+
+            arToolkitContext = new THREEx.ArToolkitContext({
+                cameraParametersUrl: '../libs/data/data/camera_para.dat',
+                detectionMode: 'mono'
+            });
+
+            arToolkitContext.init(function onCompleted() {
+                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+            });
+
+            for (i = 0; i < notas.length; i++) {
+
+                const audio = 'notas/audio/' + notas[i] + '.wav';
+                var file = 'notas/' + notas[i] + '.patt';
+                var markerRoot = new THREE.Group();
+                markerRoot.name = notas[i];
+                scene.add(markerRoot);
+                let markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+                    type: 'pattern', patternUrl: file,
+                });
+                const letra = notas[i];
+                console.log(i); console.log(letra);
+                console.log(audio);
+                var context = new (window.AudioContext || window.webkitAudioContext);
+                var gainNode = context.createGain();
+                gainNode.gain.value = 1;
+                gainNode.connect(context.destination);
+                let bufferLoader = new BufferLoader(context, [audio], (bufferList) => {
+                    var source = context.createBufferSource();
+                    map.set(letra, bufferList[0]);
+
+                });
+                bufferLoader.load();
+
+                array_marker.push(markerRoot);
+            }
+
+
+        }
+
+        var no_visible;
+        var array_result;
+        var string;
+
+
+
+        function update() {
+            string = null;
+
+            no_visible = array_marker.filter(x => x.visible == false);
+            array_result = no_visible.filter(x => -1 !== visible_old.indexOf(x));
+            visible_old = array_marker.filter(x => x.visible == true);
+            visible_old.concat(array_result);
+            visible_old.forEach(x => {
+                var idx = array_marker.indexOf(x);
+                if (array_marker_started[idx] == true) {
+                    var audio = map.get(x.name);
+                    //audio.stop(0);
+                    audio.currentTime = 0;
+                    //  audio.suspend();
+                    console.log("suspendiendo audio");
+                    array_marker_started[idx] = false;
+                }
+            });
+
+
+            string = visible_old.map(x => x.name);
+
+            var obj = map.get(string.join(' '));
+            document.getElementById('resultado').innerHTML = string.join('');
+
+            array_result.forEach(x => {
+                var idx = array_marker.indexOf(x);
+                var audio = map.get(x.name);
+                var context = new (window.AudioContext || window.webkitAudioContext);
+                var source = context.createBufferSource();
+                source.buffer = audio;
+                source.connect(context.destination);
+                source.start(0);
+                array_marker_started[idx] = true;
+                setTimeout(
+                    function () {
+                        //	audio.suspend();
+                        array_marker_started[idx] = false;
+                    }, 500);
+            });
+
+            if (arToolkitSource.ready !== false)
+                arToolkitContext.update(arToolkitSource.domElement);
+        }
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            deltaTime = clock.getDelta();
+            totalTime += deltaTime;
+            update();
+            render();
+        }
+    </script>
+
+</body>
