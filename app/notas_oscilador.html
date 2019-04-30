@@ -34,7 +34,9 @@
 		var mesh1, mesh2;
 		var escala;
 		const notas = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
-		const freq_notas = [261, 293, 329, 349, 392, 440, 493];
+		//const freq_notas = [261, 293, 329, 349, 392, 440, 493];
+		const freq_notas = [523, 587, 659, 698, 783, 880, 987];
+
 		var array_marker_started = new Array(notas.length).fill(false);
 		//	var marker_timestamps = new Array(notas.length).fill(0.0);
 		var array_marker = new Array();
@@ -120,6 +122,7 @@
 				oscillator.frequency.value = freq_notas[i];
 				oscillator.connect(gainNode);
 				oscillator.start(0);
+				context.suspend();
 				map.set(letra, context);
 				array_marker.push(markerRoot);
 			}
@@ -145,7 +148,6 @@
 				if (array_marker_started[idx] == true) {
 					var oscillator = map.get(x.name);
 					oscillator.suspend();
-					console.log("suspendiendo audio");
 					array_marker_started[idx] = false;
 				}
 			});
@@ -165,7 +167,7 @@
 					function () {
 						oscillator.suspend();
 						array_marker_started[idx] = false;
-					}, 5000);
+					}, 3000);
 			});
 
 			if (arToolkitSource.ready !== false)

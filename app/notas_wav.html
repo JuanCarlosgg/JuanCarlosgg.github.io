@@ -35,7 +35,8 @@
         var mesh1, mesh2;
         var escala;
         const notas = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
-        const freq_notas = [261, 293, 329, 349, 392, 440, 493];
+     //   const freq_notas = [261, 293, 329, 349, 392, 440, 493];
+       
         var array_marker_started = new Array(notas.length).fill(false);
         //	var marker_timestamps = new Array(notas.length).fill(0.0);
         var array_marker = new Array();
@@ -151,7 +152,7 @@
                     //audio.stop(0);
                     audio.currentTime = 0;
                     //  audio.suspend();
-                    console.log("suspendiendo audio");
+                    //console.log("suspendiendo audio");
                     array_marker_started[idx] = false;
                 }
             });
