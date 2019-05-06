@@ -33,9 +33,9 @@
 		var markerRoot1, markerRoot2, markerRoot3;
 		var mesh1, mesh2;
 		var escala;
-		const notas = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+		const notas = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La','La#', 'Si'];
 		//const freq_notas = [261, 293, 329, 349, 392, 440, 493];
-		const freq_notas = [523, 587, 659, 698, 783, 880, 987];
+		const freq_notas = [523, 554, 587,622, 659, 698,739,  783, 830, 880, 932,987];
 
 		var array_marker_started = new Array(notas.length).fill(false);
 		//	var marker_timestamps = new Array(notas.length).fill(0.0);
@@ -46,9 +46,6 @@
 		var visible_old = array_marker.filter(x => x.visible == true);
 		animate();
 		function initialize() {
-
-
-
 			scene = new THREE.Scene();
 			let ambientLight = new THREE.AmbientLight(0xcccccc, 0.5);
 			scene.add(ambientLight);
@@ -59,8 +56,6 @@
 				antialias: true,
 				alpha: true
 			});
-
-
 
 			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 			renderer.setSize(640, 480);
